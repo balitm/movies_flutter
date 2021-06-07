@@ -1,56 +1,97 @@
 import 'package:flutter/material.dart';
+import 'package:movies/model/HTTPSession.dart';
 import 'package:movies/ui/ViewModel/MoviesCollectionViewModel.dart';
 
-class MoviesPage extends StatefulWidget {
-  MoviesPage({Key? key, required this.title}) : super(key: key);
+const _kRatio = 0.7; // 1 / 1.5;
+const _kPlaceholder = 'assets/images/noimage2.png';
 
-  final String title;
+class Movies extends StatefulWidget {
+  Movies({Key? key}) : super(key: key);
 
   @override
-  _MoviesPageState createState() => _MoviesPageState();
+  _MoviesState createState() => _MoviesState();
 }
 
-class _MoviesPageState extends State<MoviesPage> {
-  int _counter = 0;
-  late MoviesCollectionViewModel _viewModel;
+class _MoviesState extends State<Movies> {
+  final _viewModel = MoviesCollectionViewModel();
 
   @override
   void initState() {
-    _viewModel = MoviesCollectionViewModel();
     super.initState();
   }
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+  @override
+  void didChangeDependencies() {
+    final data = MediaQuery.of(context);
+    final width = data.devicePixelRatio * data.size.width / 2;
+    _viewModel.start(1, width.ceilToDouble().toInt());
+    super.didChangeDependencies();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('Movies'),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+      body: _body(context),
+    );
+  }
+
+  Widget _body(BuildContext context) {
+    return StreamBuilder<NowPlaying>(
+      stream: _viewModel.nowPlaying,
+      builder: ((context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        } else {
+          return _grid(context, snapshot.data!);
+        }
+      }),
+    );
+  }
+
+  Widget _grid(BuildContext context, NowPlaying nowPlaying) {
+    final data = MediaQuery.of(context);
+    var width = data.size.width / 2;
+    var height = width / _kRatio;
+
+    double round(double value) {
+      return (value * data.devicePixelRatio).roundToDouble() /
+          data.devicePixelRatio;
+    }
+
+    width = round(width);
+    height = round(height);
+
+    return GridView.builder(
+      itemCount: nowPlaying.results.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 0,
+        mainAxisSpacing: 0,
+        childAspectRatio: _kRatio,
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ),
+      itemBuilder: ((_, index) {
+        final uri = nowPlaying.results[index].uri;
+        if (uri == null) {
+          return Container(
+            width: width,
+            height: height,
+            color: Colors.yellow,
+          );
+        }
+        print('show img from ${uri.toString()}');
+        return FadeInImage.assetNetwork(
+          placeholder: _kPlaceholder,
+          image: uri.toString(),
+          width: width,
+          height: height,
+          fit: BoxFit.cover,
+        );
+      }),
     );
   }
 }

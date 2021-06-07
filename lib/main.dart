@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'ui/widgets/Movies.dart';
 
 void main() {
-  runApp(Movies());
+  runApp(MoviesPage());
 }
 
-class Movies extends StatelessWidget {
+class MoviesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -13,7 +13,7 @@ class Movies extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MoviesPage(title: 'Flutter Demo Home Page'),
+      home: Movies(),
     );
   }
 }
