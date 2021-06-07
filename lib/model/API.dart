@@ -6,11 +6,20 @@ import 'package:http/http.dart' as http;
 typedef Configuration = DS.Configuration;
 
 final _kTokenKey = "01c2282c845056a58215f4bd57f65352";
-final _kBaseUrlString = "api.themoviedb.org"; // 3/";
+final _kBaseUrlString = "api.themoviedb.org";
+final _kPathPrefix = "3/";
 
 class API {
-  static Future<Configuration> configuration() async {
+  static Future<DS.Configuration> configuration() async {
     final uri = API._createURL("configuration");
+    return _fetch(uri);
+  }
+
+  static Future<DS.NowPlaying> nowPlaying({required int page}) {
+    final uri = API._createURL("movie/now_playing", {
+      'language': 'en-US',
+      'page': '$page',
+    });
     return _fetch(uri);
   }
 
@@ -28,7 +37,7 @@ class API {
 
   static Uri _createURL(String function, [Map<String, dynamic>? parameters]) {
     // Assembling the url.
-    final path = "3/$function";
+    final path = _kPathPrefix + function;
     final Map<String, dynamic> params = {'api_key': _kTokenKey};
     if (parameters != null) {
       params.addAll(parameters);

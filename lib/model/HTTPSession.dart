@@ -13,6 +13,7 @@ class NowPlaying {
     required this.page,
     required this.results,
   });
+
   factory NowPlaying.empty() {
     return NowPlaying(page: 0, results: []);
   }

@@ -46,9 +46,43 @@ class Configuration implements FromJSON {
   }
 }
 
+class _MovieListResult {
+  final String? posterPath;
+
+  _MovieListResult({required this.posterPath});
+
+  factory _MovieListResult.fromJson(Map<String, dynamic> json) {
+    final posterPath = json['poster_path'];
+    return _MovieListResult(posterPath: posterPath);
+  }
+}
+
+class NowPlaying implements FromJSON {
+  final int page;
+  final List<_MovieListResult> results;
+
+  NowPlaying({
+    required this.page,
+    required this.results,
+  });
+
+  factory NowPlaying.fromJson(Map<String, dynamic> json) {
+    final int page = json['page'];
+    final List<dynamic> rawPaths = json['results'];
+    final results = rawPaths.map((e) => _MovieListResult.fromJson(e)).toList();
+    final result = NowPlaying(
+      page: page,
+      results: results,
+    );
+    print('received now playing: $result');
+    return result;
+  }
+}
+
 /// Add factory functions for every Type and every constructor you want to make available to `make`
 final _factories = <Type, Function>{
-  Configuration: (Map<String, dynamic> json) => Configuration.fromJson(json)
+  Configuration: (Map<String, dynamic> json) => Configuration.fromJson(json),
+  NowPlaying: (Map<String, dynamic> json) => NowPlaying.fromJson(json),
 };
 
 T makeEntity<T extends FromJSON>(Map<String, dynamic> json) {

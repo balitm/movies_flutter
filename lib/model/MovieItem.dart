@@ -1,7 +1,9 @@
 class MovieItem {
-  int index = 0;
-  // let url: URL?
+  final int index;
+  final Uri? uri;
   // let image: UIImage?
+
+  MovieItem({required this.index, this.uri});
 
   bool get canFetchImage {
     // image == nil && url != nil
